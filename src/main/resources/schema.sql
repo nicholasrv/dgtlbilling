@@ -1,10 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS dgtlbilling;
 
 SET NAMES 'UTF8MB4';
---SET TIME_ZONE = 'UTC';
-----SET TIME_ZONE = '-4:00';
-
-USE dgtlbilling;
 
 DROP TABLE IF EXISTS Users;
 
@@ -33,8 +29,8 @@ CREATE TABLE Roles
 (
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name            VARCHAR(50) NOT NULL,
-    permission      VARCHAR(50) NOT NULL, --user:read,user:delete,customer:read
-    CONSTRAINT      UQ_Users_Email UNIQUE (name)
+    permission      VARCHAR(50) NOT NULL,
+    CONSTRAINT      UQ_Roles_Name UNIQUE (name)
 );
 
 DROP TABLE IF EXISTS UserRoles;
@@ -70,7 +66,7 @@ CREATE TABLE UserEvents
     ip_address      VARCHAR(100) DEFAULT NULL,
     created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY     (user_id) REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY     (event_id) REFERENCES Events (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY     (event_id) REFERENCES Events (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS AccountVerifications;
@@ -80,7 +76,6 @@ CREATE TABLE AccountVerifications
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id         BIGINT UNSIGNED NOT NULL,
     url             VARCHAR(255) NOT NULL,
---    date            DATETIME NOT NULL,
     FOREIGN KEY     (user_id) REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT      UQ_AccountVerifications_User_Id UNIQUE (user_id),
     CONSTRAINT      UQ_AccountVerifications_Url UNIQUE (url)
