@@ -29,7 +29,7 @@ CREATE TABLE Roles
 (
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name            VARCHAR(50) NOT NULL,
-    permission      VARCHAR(50) NOT NULL,
+    permission      VARCHAR(250) NOT NULL,
     CONSTRAINT      UQ_Roles_Name UNIQUE (name)
 );
 
