@@ -47,13 +47,10 @@ public class UserRepositoryImpl implements UserRepository<User> {
             roleRepository.addRoleToUser(user.getId(), ROLE_USER.name());
             String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), ACCOUNT.getType());
             jdbc.update(INSERT_ACCOUNT_VERIFICATION_URL_QUERY, of("userId", user.getId(), "url", verificationUrl));
-            emailService.sendVerificationUrl(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
+//            emailService.sendVerificationUrl(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
             user.setEnabled(false);
             user.setNotLocked(true);
             return user;
-        } catch (EmptyResultDataAccessException exception) {
-            throw new ApiException("No role found by name: " + ROLE_USER.name());
-
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
         }
