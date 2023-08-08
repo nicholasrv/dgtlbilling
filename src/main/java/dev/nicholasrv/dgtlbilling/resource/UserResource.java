@@ -3,6 +3,7 @@ package dev.nicholasrv.dgtlbilling.resource;
 import dev.nicholasrv.dgtlbilling.domain.HttpResponse;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.form.LoginForm;
 import dev.nicholasrv.dgtlbilling.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -16,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import java.net.URI;
 import java.util.Map;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -31,10 +33,19 @@ public class UserResource {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
+
     @PostMapping("/login")
-    public ResponseEntity<HttpResponse> login(String email, String password){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        return null;
+    public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm){
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
+        UserDTO userDTO = userService.getUserByEmail(loginForm.getEmail());
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", userDTO))
+                        .message("Login Success")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
     }
 
     @PostMapping("/register")
