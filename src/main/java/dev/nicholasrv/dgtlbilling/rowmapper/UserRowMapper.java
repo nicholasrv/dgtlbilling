@@ -1,6 +1,5 @@
 package dev.nicholasrv.dgtlbilling.rowmapper;
 
-import dev.nicholasrv.dgtlbilling.domain.Role;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -24,7 +23,7 @@ public class UserRowMapper implements RowMapper<User> {
                 .enabled(resultSet.getBoolean("enabled"))
                 .isUsingMfa(resultSet.getBoolean("using_mfa"))
                 .isNotLocked(resultSet.getBoolean("non_locked"))
-                .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
+                .createdDate(resultSet.getTimestamp("created_date").toLocalDateTime())
                 .build();
     }
 }

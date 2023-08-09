@@ -5,6 +5,7 @@ import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
 import dev.nicholasrv.dgtlbilling.form.LoginForm;
 import dev.nicholasrv.dgtlbilling.service.UserService;
+import dev.nicholasrv.dgtlbilling.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -24,13 +25,14 @@ import java.util.Map;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping(path = "/user")
 @RequiredArgsConstructor
 public class UserResource {
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final AuthenticationManager authenticationManager;
 
 
@@ -56,8 +58,8 @@ public class UserResource {
                         .timeStamp(now().toString())
                         .data(of("user", userDto))
                         .message("User created")
-                        .status(HttpStatus.CREATED)
-                        .statusCode(HttpStatus.CREATED.value())
+                        .status(CREATED)
+                        .statusCode(CREATED.value())
                         .build());
     }
 

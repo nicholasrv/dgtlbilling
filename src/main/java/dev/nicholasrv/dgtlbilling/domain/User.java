@@ -36,5 +36,5 @@ public class User {
     private boolean enabled;
     private boolean isNotLocked;
     private boolean isUsingMfa;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
 }
