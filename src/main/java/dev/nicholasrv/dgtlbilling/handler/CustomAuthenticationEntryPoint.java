@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 
 import static java.time.LocalTime.now;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -24,14 +25,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         HttpResponse httpResponse = HttpResponse.builder()
-                .timeStamp(now().toString())
-                .reason("You need to log in to access this resource!")
+                .timeStamp(LocalDateTime.now().toString())
+                .reason("You need to log in to access this resource")
                 .status(UNAUTHORIZED)
                 .statusCode(UNAUTHORIZED.value())
                 .build();
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(UNAUTHORIZED.value());
-
         OutputStream out = response.getOutputStream();
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, httpResponse);

@@ -32,22 +32,15 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping(path = "/user")
 @RequiredArgsConstructor
 public class UserResource {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
 
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginForm.getEmail(), loginForm.getPassword()));
-        UserDTO userDTO = userService.getUserByEmail(loginForm.getEmail());
-        return ResponseEntity.ok().body(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .data(of("user", userDTO))
-                        .message("Login Success")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
+        UserDTO user = userService.getUserByEmail(loginForm.getEmail());
+        return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
     }
 
     @PostMapping("/register")
