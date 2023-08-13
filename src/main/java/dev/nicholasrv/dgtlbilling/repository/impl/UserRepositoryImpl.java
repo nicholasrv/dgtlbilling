@@ -3,6 +3,7 @@ package dev.nicholasrv.dgtlbilling.repository.impl;
 import dev.nicholasrv.dgtlbilling.domain.Role;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.domain.UserPrincipal;
+import dev.nicholasrv.dgtlbilling.dto.UserDTO;
 import dev.nicholasrv.dgtlbilling.exception.ApiException;
 import dev.nicholasrv.dgtlbilling.repository.RoleRepository;
 import dev.nicholasrv.dgtlbilling.repository.UserRepository;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.UUID;
 
 import static dev.nicholasrv.dgtlbilling.enumeration.RoleType.ROLE_USER;
@@ -30,12 +32,16 @@ import static dev.nicholasrv.dgtlbilling.enumeration.VerificationType.ACCOUNT;
 import static dev.nicholasrv.dgtlbilling.query.UserQuery.*;
 import static java.util.Map.*;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.time.DateFormatUtils.format;
+import static org.apache.commons.lang3.time.DateUtils.addDays;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class UserRepositoryImpl implements UserRepository<User>, UserDetailsService {
 
+    private static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
     private final NamedParameterJdbcTemplate jdbc;
     private final RoleRepository<Role> roleRepository;
     private final BCryptPasswordEncoder encoder;
@@ -56,6 +62,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             user.setNotLocked(true);
             return user;
         } catch (Exception exception) {
+            log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
     }
@@ -120,4 +127,19 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             throw new ApiException("An error occurred. Please try again.");
         }
     }
+
+    @Override
+    public void sendVerificationCode(UserDTO user) {
+        String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
+        String verificationCode = randomAlphabetic(8).toUpperCase();
+        try {
+            jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, of("id", user.getId()));
+            jdbc.update(INSERT_VERIFICATION_CODE_QUERY, of("userId", user.getId(), "code", verificationCode, "expirationDate", expirationDate));
+            //sendSMS(user.getPhone(), "From: DgtlBilling \nVerification code\n" + verificationCode);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
 }

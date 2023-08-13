@@ -1,6 +1,7 @@
 package dev.nicholasrv.dgtlbilling.repository;
 
 import dev.nicholasrv.dgtlbilling.domain.User;
+import dev.nicholasrv.dgtlbilling.dto.UserDTO;
 
 import java.util.Collection;
 
@@ -12,4 +13,6 @@ public interface UserRepository <T extends User>{
     boolean delete(Long id);
 
     User getUserByEmail(String email);
+
+    void sendVerificationCode(UserDTO user);
 }

@@ -8,11 +8,11 @@ import java.sql.SQLException;
 
 public class RoleRowMapper implements RowMapper<Role> {
     @Override
-    public Role mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Role mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         return Role.builder()
-                .id(rs.getLong("id"))
-                .name(rs.getString("name"))
-                .permission(rs.getString("permission"))
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("name"))
+                .permission(resultSet.getString("permission"))
                 .build();
     }
 }

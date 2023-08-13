@@ -66,4 +66,27 @@ public class UserResource {
     private URI getUri() {
         return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());
     }
+
+    private ResponseEntity<HttpResponse> sendResponse(UserDTO user) {
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", user))
+                        .message("Login Success")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    private ResponseEntity<HttpResponse> sendVerificationCode(UserDTO user) {
+        userService.sendVerificationCode(user);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", user))
+                        .message("Verification Code Sent")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
 }

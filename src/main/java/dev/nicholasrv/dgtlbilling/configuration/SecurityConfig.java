@@ -30,17 +30,17 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final UserDetailsService userDetailsService;
 
-    public static final String [] PUBLIC_URLS = {"/user/login/**", "/user/register/**"};
+    public static final String[] PUBLIC_URLS = {"/user/login/**", "/user/register/**"};
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().cors().disable();
-        httpSecurity.sessionManagement().sessionCreationPolicy(STATELESS);
-        httpSecurity.authorizeHttpRequests().requestMatchers(PUBLIC_URLS).permitAll();
-        httpSecurity.authorizeHttpRequests().requestMatchers(DELETE, "/user/delete/**").hasAnyAuthority("DELETE:USER");
-        httpSecurity.authorizeHttpRequests().requestMatchers(DELETE, "/customer/delete/**").hasAnyAuthority("DELETE:CUSTOMER");
-        httpSecurity.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint);
-        httpSecurity.authorizeHttpRequests().anyRequest().authenticated();
-        return httpSecurity.build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable().cors().disable();
+        http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.authorizeHttpRequests().requestMatchers(PUBLIC_URLS).permitAll();
+        http.authorizeHttpRequests().requestMatchers(DELETE, "/user/delete/**").hasAnyAuthority("DELETE:USER");
+        http.authorizeHttpRequests().requestMatchers(DELETE, "/customer/delete/**").hasAnyAuthority("DELETE:CUSTOMER");
+        http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint);
+        http.authorizeHttpRequests().anyRequest().authenticated();
+        return http.build();
     }
 
     @Bean
