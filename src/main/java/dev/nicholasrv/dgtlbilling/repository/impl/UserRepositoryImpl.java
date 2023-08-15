@@ -30,6 +30,7 @@ import java.util.UUID;
 import static dev.nicholasrv.dgtlbilling.enumeration.RoleType.ROLE_USER;
 import static dev.nicholasrv.dgtlbilling.enumeration.VerificationType.ACCOUNT;
 import static dev.nicholasrv.dgtlbilling.query.UserQuery.*;
+import static dev.nicholasrv.dgtlbilling.utils.SmsUtils.sendSMS;
 import static java.util.Map.*;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -135,7 +136,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, of("id", user.getId()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, of("userId", user.getId(), "code", verificationCode, "expirationDate", expirationDate));
-            //sendSMS(user.getPhone(), "From: DgtlBilling \nVerification code\n" + verificationCode);
+//            sendSMS(user.getPhone(), "From: DgtlBilling \nVerification code\n" + verificationCode);
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
