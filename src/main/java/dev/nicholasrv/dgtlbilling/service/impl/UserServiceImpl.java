@@ -8,6 +8,8 @@ import dev.nicholasrv.dgtlbilling.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static dev.nicholasrv.dgtlbilling.dtomapper.UserDTOMapper.fromUser;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -15,14 +17,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(User user) {
-        return UserDTOMapper.fromUser(userRepository.create(user));
+        return fromUser(userRepository.create(user));
     }
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        return UserDTOMapper.fromUser(userRepository.getUserByEmail(email));
+        return fromUser(userRepository.getUserByEmail(email));
     }
 
     @Override
     public void sendVerificationCode(UserDTO user) {userRepository.sendVerificationCode(user);}
+
+    @Override
+    public User getUser(String email) {
+        return userRepository.getUserByEmail(email);
+    }
+
+    @Override
+    public UserDTO verifyCode(String email, String code) {
+        return fromUser(userRepository.verifyCode(email, code));
+    }
 }

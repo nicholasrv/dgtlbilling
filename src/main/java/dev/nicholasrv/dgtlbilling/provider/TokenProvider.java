@@ -18,12 +18,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static java.lang.System.currentTimeMillis;
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.Streams.stream;
 
 @Component
 public class TokenProvider {
@@ -37,14 +40,14 @@ public class TokenProvider {
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 432_000_000;
     @Value("${jwt.secret}")
     private String secret;
-    private String createAccessToken(UserPrincipal userPrincipal) {
+    public String createAccessToken(UserPrincipal userPrincipal) {
         return JWT.create().withIssuer(NICHOLASRV_LTDA).withAudience(DIGITAL_BILLING_SERVICE)
                 .withIssuedAt(new Date()).withSubject(userPrincipal.getUsername()).withArrayClaim(AUTHORITIES, getClaimsFromUser(userPrincipal))
                 .withExpiresAt(new Date(currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
                 .sign(HMAC512(secret.getBytes()));
     }
 
-    private String createRefreshToken(UserPrincipal userPrincipal) {
+    public String createRefreshToken(UserPrincipal userPrincipal) {
         return JWT.create().withIssuer(NICHOLASRV_LTDA).withAudience(DIGITAL_BILLING_SERVICE)
                 .withIssuedAt(new Date()).withSubject(userPrincipal.getUsername())
                 .withExpiresAt(new Date(currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
@@ -56,23 +59,24 @@ public class TokenProvider {
             return getJWTVerifier().verify(token).getSubject();
         }catch (TokenExpiredException exception){
             request.setAttribute("expired message", exception.getMessage());
+            throw exception;
         }catch (InvalidClaimException exception){
             request.setAttribute("invalidClaim", exception.getMessage());
+            throw exception;
         }catch (Exception exception){
             throw exception;
         }
-        return "";
     }
 
     public List<GrantedAuthority> getAuthorities(String token) {
         String[] claims = getClaimsFromToken(token);
-        return stream(claims).map(SimpleGrantedAuthority::new).collect(toList());
+        return Arrays.stream(claims).map(SimpleGrantedAuthority::new).collect(toList());
     }
 
     public Authentication getAuthentication(String email, List<GrantedAuthority> authorities, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(email, null, authorities);
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        return usernamePasswordAuthenticationToken;
+        UsernamePasswordAuthenticationToken userPasswordAuthToken = new UsernamePasswordAuthenticationToken(email, null, authorities);
+        userPasswordAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        return userPasswordAuthToken;
     }
 
     public boolean isTokenValid(String email, String token){

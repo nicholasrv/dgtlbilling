@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final UserDetailsService userDetailsService;
 
-    public static final String[] PUBLIC_URLS = {"/user/login/**", "/user/register/**"};
+    public static final String[] PUBLIC_URLS = {"/user/login/**", "/user/register/**", "/user/verify/code/**"};
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().disable();
