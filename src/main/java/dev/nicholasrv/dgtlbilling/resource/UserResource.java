@@ -8,25 +8,21 @@ import dev.nicholasrv.dgtlbilling.form.LoginForm;
 import dev.nicholasrv.dgtlbilling.provider.TokenProvider;
 import dev.nicholasrv.dgtlbilling.service.RoleService;
 import dev.nicholasrv.dgtlbilling.service.UserService;
-import dev.nicholasrv.dgtlbilling.service.impl.UserServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import jakarta.validation.Valid;
 
 import java.net.URI;
-import java.util.Map;
 
+import static dev.nicholasrv.dgtlbilling.dtomapper.UserDTOMapper.toUser;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -73,7 +69,7 @@ public class UserResource {
     }
 
     private URI getUri() {
-        return URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/get/<userId>").toUriString());
+        return URI.create(fromCurrentContextPath().path("/user/get/<userId>").toUriString());
     }
 
     private ResponseEntity<HttpResponse> sendResponse(UserDTO user) {
@@ -89,7 +85,7 @@ public class UserResource {
     }
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
-        return new UserPrincipal(userService.getUser(user.getEmail()), roleService.getRoleByUserId(user.getId()).getPermission());
+        return new UserPrincipal(toUser(userService.getUserByEmail(user.getEmail())), roleService.getRoleByUserId(user.getId()).getPermission());
     }
 
     private ResponseEntity<HttpResponse> sendVerificationCode(UserDTO user) {

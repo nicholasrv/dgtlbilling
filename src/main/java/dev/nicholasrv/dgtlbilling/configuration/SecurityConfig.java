@@ -1,5 +1,6 @@
 package dev.nicholasrv.dgtlbilling.configuration;
 
+import dev.nicholasrv.dgtlbilling.filter.CustomAuthorizationFilter;
 import dev.nicholasrv.dgtlbilling.handler.CustomAccessDeniedHandler;
 import dev.nicholasrv.dgtlbilling.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -29,6 +31,7 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final UserDetailsService userDetailsService;
+    private final CustomAuthorizationFilter customAuthorizationFilter;
 
     public static final String[] PUBLIC_URLS = {"/user/login/**", "/user/register/**", "/user/verify/code/**"};
     @Bean
@@ -40,6 +43,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests().requestMatchers(DELETE, "/customer/delete/**").hasAnyAuthority("DELETE:CUSTOMER");
         http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(customAuthenticationEntryPoint);
         http.authorizeHttpRequests().anyRequest().authenticated();
+        http.addFilterBefore(customAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
