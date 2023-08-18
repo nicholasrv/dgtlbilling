@@ -8,8 +8,10 @@ import dev.nicholasrv.dgtlbilling.form.LoginForm;
 import dev.nicholasrv.dgtlbilling.provider.TokenProvider;
 import dev.nicholasrv.dgtlbilling.service.RoleService;
 import dev.nicholasrv.dgtlbilling.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +24,7 @@ import java.sql.SQLOutput;
 import static dev.nicholasrv.dgtlbilling.dtomapper.UserDTOMapper.toUser;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
@@ -82,6 +83,17 @@ public class UserResource {
                         .message("Profile retrieved")
                         .status(OK)
                         .statusCode(OK.value())
+                        .build());
+    }
+
+    @RequestMapping("/error")
+    public ResponseEntity<HttpResponse> handleError(HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .reason("There is no mapping for a " + request.getMethod() + " request for this path on the server.")
+                        .status(NOT_FOUND)
+                        .statusCode(NOT_FOUND.value())
                         .build());
     }
 
