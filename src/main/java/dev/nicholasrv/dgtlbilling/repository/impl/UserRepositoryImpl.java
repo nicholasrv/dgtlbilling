@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import static dev.nicholasrv.dgtlbilling.enumeration.RoleType.ROLE_USER;
 import static dev.nicholasrv.dgtlbilling.enumeration.VerificationType.ACCOUNT;
+import static dev.nicholasrv.dgtlbilling.enumeration.VerificationType.PASSWORD;
 import static dev.nicholasrv.dgtlbilling.query.UserQuery.*;
 import static dev.nicholasrv.dgtlbilling.utils.SmsUtils.sendSMS;
 import static java.util.Map.*;
@@ -112,7 +113,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             throw new UsernameNotFoundException("User not found in the database");
         } else {
             log.info("User found in the database: {}", email);
-            return new UserPrincipal(user, roleRepository.getRoleByUserId(user.getId()).getPermission());
+            return new UserPrincipal(user, roleRepository.getRoleByUserId(user.getId()));
         }
     }
 
@@ -158,6 +159,22 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             }
         } catch (EmptyResultDataAccessException exception) {
             throw new ApiException("Could not find record");
+        } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public void resetPassword(String email) {
+        if(getEmailCount(email.trim().toLowerCase()) <= 0) throw new ApiException("There is no account for this email address.");
+        try{
+                String expirationDate = format(addDays(new Date(), 1), DATE_FORMAT);
+                User user = getUserByEmail(email);
+                String verificationUrl = getVerificationUrl(UUID.randomUUID().toString(), PASSWORD.getType());
+                jdbc.update(DELETE_PASSWORD_VERIFICATION_BY_USER_ID_QUERY, of("userId", user.getId()));
+                jdbc.update(INSERT_PASSWORD_VERIFICATION_QUERY, of("userId", user.getId(), "url", verificationUrl, "expirationDate", expirationDate));
+                // TODO send email with url to user
+                log.info("Verification URL: {}", verificationUrl);
         } catch (Exception exception) {
             throw new ApiException("An error occurred. Please try again.");
         }

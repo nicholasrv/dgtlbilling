@@ -4,11 +4,13 @@ import dev.nicholasrv.dgtlbilling.domain.HttpResponse;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.domain.UserPrincipal;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.exception.ApiException;
 import dev.nicholasrv.dgtlbilling.form.LoginForm;
 import dev.nicholasrv.dgtlbilling.provider.TokenProvider;
 import dev.nicholasrv.dgtlbilling.service.RoleService;
 import dev.nicholasrv.dgtlbilling.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import java.net.URI;
 import java.sql.SQLOutput;
 
 import static dev.nicholasrv.dgtlbilling.dtomapper.UserDTOMapper.toUser;
+import static dev.nicholasrv.dgtlbilling.utils.ExceptionUtils.processError;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.*;
@@ -36,13 +39,19 @@ public class UserResource {
     private final RoleService roleService;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
 
 
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm){
-        authenticationManager.authenticate(unauthenticated(loginForm.getEmail(), loginForm.getPassword()));
-        UserDTO user = userService.getUserByEmail(loginForm.getEmail());
+        Authentication authentication = authenticate(loginForm.getEmail(), loginForm.getPassword());
+        UserDTO user = getAuthenticatedUser(authentication);
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
+    }
+
+    private UserDTO getAuthenticatedUser(Authentication authentication) {
+        return((UserPrincipal) authentication.getPrincipal()).getUser();
     }
 
     @PostMapping("/register")
@@ -86,6 +95,18 @@ public class UserResource {
                         .build());
     }
 
+    @GetMapping("/resetpassword/{email}")
+    public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) {
+        userService.resetPassword(email);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Email sent. Please check your mailbox to reset your password.")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @RequestMapping("/error")
     public ResponseEntity<HttpResponse> handleError(HttpServletRequest request) {
         return ResponseEntity.badRequest().body(
@@ -114,7 +135,7 @@ public class UserResource {
     }
 
     private UserPrincipal getUserPrincipal(UserDTO user) {
-        return new UserPrincipal(toUser(userService.getUserByEmail(user.getEmail())), roleService.getRoleByUserId(user.getId()).getPermission());
+        return new UserPrincipal(toUser(userService.getUserByEmail(user.getEmail())), roleService.getRoleByUserId(user.getId()));
     }
 
     private ResponseEntity<HttpResponse> sendVerificationCode(UserDTO user) {
@@ -127,5 +148,16 @@ public class UserResource {
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
+    }
+
+    private Authentication authenticate (String email, String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(unauthenticated(email, password));
+            return authentication;
+        } catch (Exception exception){
+            processError(request, response, exception);
+            throw new ApiException(exception.getMessage());
+        }
+
     }
 }
