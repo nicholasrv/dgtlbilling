@@ -4,6 +4,7 @@ import dev.nicholasrv.dgtlbilling.domain.Role;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.domain.UserPrincipal;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.enumeration.VerificationType;
 import dev.nicholasrv.dgtlbilling.exception.ApiException;
 import dev.nicholasrv.dgtlbilling.repository.RoleRepository;
 import dev.nicholasrv.dgtlbilling.repository.UserRepository;
@@ -176,6 +177,44 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 // TODO send email with url to user
                 log.info("Verification URL: {}", verificationUrl);
         } catch (Exception exception) {
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public User verifyPasswordKey(String key) {
+        if(isLinkExpired(key, PASSWORD)) throw new ApiException("This link has expired, please reset your password again.");
+        try{
+             User user = jdbc.queryForObject(SELECT_USER_BY_PASSWORD_URL_QUERY, of("url", getVerificationUrl(key, PASSWORD.getType())), new UserRowMapper());
+            return user;
+        } catch (EmptyResultDataAccessException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("This link is not valid. Please reset your password again.");
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+        }
+    }
+
+    @Override
+    public void renewPassword(String key, String password, String confirmPassword) {
+        if(!password.equals(confirmPassword)) throw new ApiException("Passwords don't match. Please try again.");
+        try{
+            jdbc.update(UPDATE_USER_PASSWORD_BY_URL_QUERY, of("password", encoder.encode(password), "url", getVerificationUrl(key, PASSWORD.getType())));
+            jdbc.update(DELETE_VERIFICATION_BY_URL_QUERY, of("url", getVerificationUrl(key, PASSWORD.getType())));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred. Please try again.");
+    }
+
+    private Boolean isLinkExpired(String key, VerificationType password) {
+        try{
+            return jdbc.queryForObject(SELECT_EXPIRATION_BY_URL, of("url", getVerificationUrl(key, password.getType())), Boolean.class);
+        } catch (EmptyResultDataAccessException exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("This link is not valid. Please reset your password again.");
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
             throw new ApiException("An error occurred. Please try again.");
         }
     }

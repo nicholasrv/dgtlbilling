@@ -9,6 +9,8 @@ public interface UserService {
     void sendVerificationCode(UserDTO user);
 
     UserDTO verifyCode(String email, String code);
+    void resetPassword(String email);
+    UserDTO verifyPasswordKey(String key);
 
-    public void resetPassword(String email);
+    void renewPassword(String key, String password, String confirmPassword);
 }
