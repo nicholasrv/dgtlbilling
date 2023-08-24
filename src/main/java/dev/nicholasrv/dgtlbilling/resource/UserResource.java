@@ -132,6 +132,16 @@ public class UserResource {
                         .build());
     }
 
+    @GetMapping("/verify/account/{key}")
+    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) {
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message(userService.verifyAccountKey(key).isEnabled() ? "Account already verified" : "Account verified")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
 
     @RequestMapping("/error")
     public ResponseEntity<HttpResponse> handleError(HttpServletRequest request) {
