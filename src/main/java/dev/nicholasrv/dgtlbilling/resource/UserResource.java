@@ -27,6 +27,7 @@ import static dev.nicholasrv.dgtlbilling.dtomapper.UserDTOMapper.toUser;
 import static dev.nicholasrv.dgtlbilling.utils.ExceptionUtils.processError;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
@@ -35,6 +36,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @RequestMapping(path = "/user")
 @RequiredArgsConstructor
 public class UserResource {
+    private static final String TOKEN_PREFIX = "Bearer ";
     private final UserService userService;
     private final RoleService roleService;
     private final AuthenticationManager authenticationManager;
@@ -141,6 +143,41 @@ public class UserResource {
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
+    }
+
+    @GetMapping("/refresh/token")
+    public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {
+        if(isHeaderTokenValid(request)) {
+            String token = request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length());
+            UserDTO user = userService.getUserByEmail(tokenProvider.getSubject(token, request));
+            return ResponseEntity.ok().body(
+                    HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .message("Token refreshed.")
+                            .data(of("user", user, "access_token", tokenProvider.createAccessToken(getUserPrincipal(user))
+                                    , "refresh_token", token))
+                            .status(OK)
+                            .statusCode(OK.value())
+                            .build());
+        } else {
+            return ResponseEntity.badRequest().body(
+                    HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .reason("Refresh Token missing or invalid")
+                            .devMessage("Refresh Token missing or invalid")
+                            .status(BAD_REQUEST)
+                            .statusCode(BAD_REQUEST.value())
+                            .build());
+        }
+    }
+
+    private boolean isHeaderTokenValid(HttpServletRequest request) {
+        return request.getHeader(AUTHORIZATION) != null
+                && request.getHeader(AUTHORIZATION).startsWith(TOKEN_PREFIX)
+                && tokenProvider.isTokenValid(
+                        tokenProvider.getSubject(request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length()), request),
+                        request.getHeader(AUTHORIZATION).substring(TOKEN_PREFIX.length())
+                            );
     }
 
     @RequestMapping("/error")
