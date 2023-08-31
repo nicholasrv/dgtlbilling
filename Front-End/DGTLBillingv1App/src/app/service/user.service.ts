@@ -7,7 +7,7 @@ import { Observable, catchError, tap, throwError } from 'rxjs';
   providedIn: 'root',
 })
 export class UserService {
-  private readonly server: string = '';
+  private readonly server: string = 'http://localhost:8080';
 
   constructor(private http: HttpClient) {}
 
@@ -18,6 +18,12 @@ export class UserService {
         password,
       })
       .pipe(tap(console.log), catchError(this.handleError));
+
+      verifyCode$ = (email: string, code: string) =>
+      <Observable<CustomHttpResponse<Profile>>>
+      this.http
+        .get<CustomHttpResponse<Profile>>(`${this.server}/user/verify/code/${email}/${code}`)
+        .pipe(tap(console.log), catchError(this.handleError));
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage: string;

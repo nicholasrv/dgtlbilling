@@ -8,6 +8,7 @@ import { RegisterComponent } from './component/register/register.component';
 import { VerifyComponent } from './component/verify/verify.component';
 import { ResetpasswordComponent } from './component/resetpassword/resetpassword.component';
 import { AppRoutingModule } from './app-routing.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { AppRoutingModule } from './app-routing.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
