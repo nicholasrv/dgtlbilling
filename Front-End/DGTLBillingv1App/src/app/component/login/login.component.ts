@@ -32,12 +32,12 @@ export class LoginComponent {
       .login$(loginForm.value.email, loginForm.value.password)
       .pipe(
         map((response) => {
-          if (response.data.user.isUsingMfa) {
+          if (response.data.user.usingMfa) {
             this.phoneSubject.next(response.data.user.phone);
             this.emailSubject.next(response.data.user.email);
             return {
               dataState: DataState.LOADED,
-              isUsingMfa: true,
+              usingMfa: true,
               loginSuccess: false,
               phone: response.data.user.phone.substring(
                 response.data.user.phone.length - 4
@@ -57,7 +57,7 @@ export class LoginComponent {
         catchError((error: string) => {
           return of({
             dataState: DataState.ERROR,
-            isUsingMfa: false,
+            usingMfa: false,
             loginSuccess: false,
             error,
           });
@@ -71,10 +71,7 @@ export class LoginComponent {
       .pipe(
         map(response => {
             localStorage.setItem(Key.TOKEN, response.data.access_token);
-            localStorage.setItem(
-              Key.REFRESH_TOKEN,
-              response.data.refresh_token
-            );
+            localStorage.setItem(Key.REFRESH_TOKEN,response.data.refresh_token);
             this.router.navigate(['/']);
             return { dataState: DataState.LOADED, loginSuccess: true };
           }),
@@ -82,7 +79,7 @@ export class LoginComponent {
         catchError((error: string) => {
           return of({
             dataState: DataState.ERROR,
-            isUsingMfa: false,
+            usingMfa: false,
             loginSuccess: false,
             error,
           });

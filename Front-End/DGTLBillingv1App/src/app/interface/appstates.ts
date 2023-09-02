@@ -6,7 +6,7 @@ export interface LoginState{
     loginSuccess?: boolean
     error?: string;
     message?: string;
-    isUsingMfa?: boolean;
+    usingMfa?: boolean;
     phone?: string;
 }
 
