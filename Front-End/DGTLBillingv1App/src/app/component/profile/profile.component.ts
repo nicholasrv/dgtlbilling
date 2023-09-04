@@ -15,6 +15,8 @@ import { UserService } from 'src/app/service/user.service';
 export class ProfileComponent implements OnInit {
   profileState$ : Observable<State<CustomHttpResponse<Profile>>> = of({ dataState: DataState.LOADED });
   private dataSubject = new BehaviorSubject<CustomHttpResponse<Profile>>(null);
+  private isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = DataState;
 
   constructor(private userService: UserService) {}

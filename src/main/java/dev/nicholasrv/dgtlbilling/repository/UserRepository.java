@@ -2,6 +2,7 @@ package dev.nicholasrv.dgtlbilling.repository;
 
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.form.UpdateForm;
 
 import java.util.Collection;
 
@@ -25,4 +26,6 @@ public interface UserRepository <T extends User>{
     void renewPassword(String key, String password, String confirmPassword);
 
     T verifyAccountKey(String key);
+
+    T updateUserDetails(UpdateForm user);
 }

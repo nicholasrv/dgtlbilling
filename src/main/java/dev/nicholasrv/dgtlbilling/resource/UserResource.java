@@ -6,9 +6,11 @@ import dev.nicholasrv.dgtlbilling.domain.UserPrincipal;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
 import dev.nicholasrv.dgtlbilling.exception.ApiException;
 import dev.nicholasrv.dgtlbilling.form.LoginForm;
+import dev.nicholasrv.dgtlbilling.form.UpdateForm;
 import dev.nicholasrv.dgtlbilling.provider.TokenProvider;
 import dev.nicholasrv.dgtlbilling.service.RoleService;
 import dev.nicholasrv.dgtlbilling.service.UserService;
+import dev.nicholasrv.dgtlbilling.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -31,6 +33,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
+import static dev.nicholasrv.dgtlbilling.utils.UserUtils.getAuthenticatedUser;
+import static dev.nicholasrv.dgtlbilling.utils.UserUtils.getLoggedInUser;
 
 @RestController
 @RequestMapping(path = "/user")
@@ -48,13 +52,11 @@ public class UserResource {
     @PostMapping("/login")
     public ResponseEntity<HttpResponse> login(@RequestBody @Valid LoginForm loginForm){
         Authentication authentication = authenticate(loginForm.getEmail(), loginForm.getPassword());
-        UserDTO user = getAuthenticatedUser(authentication);
+        UserDTO user = getLoggedInUser(authentication);
         return user.isUsingMfa() ? sendVerificationCode(user) : sendResponse(user);
     }
 
-    private UserDTO getAuthenticatedUser(Authentication authentication) {
-        return((UserPrincipal) authentication.getPrincipal()).getUser();
-    }
+
 
     @PostMapping("/register")
     public ResponseEntity<HttpResponse> saveUser(@RequestBody @Valid User user) {
@@ -85,13 +87,26 @@ public class UserResource {
 
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(Authentication authentication) {
-        UserDTO user = userService.getUserByEmail(authentication.getName());
+        UserDTO user = userService.getUserByEmail(getAuthenticatedUser(authentication).getEmail());
         System.out.println(authentication);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", user))
                         .message("Profile retrieved")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateForm user) {
+        UserDTO updatedUser = userService.updateUserDetails(user);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", updatedUser))
+                        .message("User updated")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -228,7 +243,7 @@ public class UserResource {
             Authentication authentication = authenticationManager.authenticate(unauthenticated(email, password));
             return authentication;
         } catch (Exception exception){
-            processError(request, response, exception);
+//            processError(request, response, exception);
             throw new ApiException(exception.getMessage());
         }
 

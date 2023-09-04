@@ -2,6 +2,7 @@ package dev.nicholasrv.dgtlbilling.service;
 
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.form.UpdateForm;
 
 public interface UserService {
     UserDTO createUser(User user);
@@ -15,4 +16,6 @@ public interface UserService {
     void renewPassword(String key, String password, String confirmPassword);
 
     UserDTO verifyAccountKey(String key);
+
+    UserDTO updateUserDetails(UpdateForm user);
 }

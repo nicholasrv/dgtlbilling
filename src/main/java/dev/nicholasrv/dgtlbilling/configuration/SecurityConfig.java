@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -36,7 +37,7 @@ public class SecurityConfig {
     public static final String[] PUBLIC_URLS = {"/user/login/**", "/user/register/**", "/user/verify/code/**", "/user/verify/password/**", "/user/verify/account/**", "/user/resetpassword/**", "/user/refresh/token"};
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().cors().disable();
+        http.csrf().disable().cors(withDefaults());
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeHttpRequests().requestMatchers(PUBLIC_URLS).permitAll();
         http.authorizeHttpRequests().requestMatchers(DELETE, "/user/delete/**").hasAnyAuthority("DELETE:USER");

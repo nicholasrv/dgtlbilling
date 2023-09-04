@@ -35,7 +35,7 @@ export class UserService {
   profile$ = () =>
     <Observable<CustomHttpResponse<Profile>>>
       this.http
-        .get<CustomHttpResponse<Profile>>(`${this.server}/user/profile`, { headers: new HttpHeaders().set('Authorization', 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJOSUNIT0xBU1JWX0xUREEiLCJhdWQiOiJESUdJVEFMX0JJTExJTkdfU0VSVklDRSIsImlhdCI6MTY5MzcwMzIwMiwic3ViIjoibmljaG9sYXNydkBnbWFpbC5jb20iLCJhdXRob3JpdGllcyI6WyJSRUFEOlVTRVIiLCJSRUFEOkNVU1RPTUVSIl0sImV4cCI6MTY5MzcwNTAwMn0.o1c0595u-Zx3OuB71wcQTu867_1hq4rf7NV0aSARYGRasfF4nW5nCnFZN5hF9T4zeDH3sFAwTI5fZLh_MoD8HA')})
+        .get<CustomHttpResponse<Profile>>(`${this.server}/user/profile`, { headers: new HttpHeaders().set('Authorization', 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJOSUNIT0xBU1JWX0xUREEiLCJhdWQiOiJESUdJVEFMX0JJTExJTkdfU0VSVklDRSIsImlhdCI6MTY5Mzc3MDIxMCwic3ViIjoibmljaG9sYXNydkBnbWFpbC5jb20iLCJhdXRob3JpdGllcyI6WyJSRUFEOlVTRVIiLCJSRUFEOkNVU1RPTUVSIl0sImV4cCI6MTY5Mzc3MjAxMH0.6jrLuK9GsFb8jxy-o-vnhnEJaBXObH1Rl-s5oNj1BWjgqH_wIxASOBpTNRoiL8GWe7GWLaE36rxTdlj0JglNoA')})
         .pipe(
           tap(console.log),
           catchError(this.handleError)

@@ -3,6 +3,7 @@ package dev.nicholasrv.dgtlbilling.service.impl;
 import dev.nicholasrv.dgtlbilling.domain.Role;
 import dev.nicholasrv.dgtlbilling.domain.User;
 import dev.nicholasrv.dgtlbilling.dto.UserDTO;
+import dev.nicholasrv.dgtlbilling.form.UpdateForm;
 import dev.nicholasrv.dgtlbilling.repository.RoleRepository;
 import dev.nicholasrv.dgtlbilling.repository.UserRepository;
 import dev.nicholasrv.dgtlbilling.service.UserService;
@@ -53,6 +54,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO verifyAccountKey(String key) {
         return mapToUserDTO(userRepository.verifyAccountKey(key));
+    }
+
+    @Override
+    public UserDTO updateUserDetails(UpdateForm user) {
+        return mapToUserDTO(userRepository.updateUserDetails(user));
     }
 
     private UserDTO mapToUserDTO(User user) {
