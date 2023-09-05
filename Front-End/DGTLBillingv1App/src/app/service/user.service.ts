@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { CustomHttpResponse, Profile } from '../interface/appstates';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { User } from '../interface/user';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,16 @@ export class UserService {
           tap(console.log),
           catchError(this.handleError)
           );
+
+  update$ = (user: User) =>
+    <Observable<CustomHttpResponse<Profile>>>
+      this.http
+        .patch<CustomHttpResponse<Profile>>(`${this.server}/user/update`, { headers: new HttpHeaders().set('Authorization', 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJOSUNIT0xBU1JWX0xUREEiLCJhdWQiOiJESUdJVEFMX0JJTExJTkdfU0VSVklDRSIsImlhdCI6MTY5Mzc3MDIxMCwic3ViIjoibmljaG9sYXNydkBnbWFpbC5jb20iLCJhdXRob3JpdGllcyI6WyJSRUFEOlVTRVIiLCJSRUFEOkNVU1RPTUVSIl0sImV4cCI6MTY5Mzc3MjAxMH0.6jrLuK9GsFb8jxy-o-vnhnEJaBXObH1Rl-s5oNj1BWjgqH_wIxASOBpTNRoiL8GWe7GWLaE36rxTdlj0JglNoA')})
+        .pipe(
+          tap(console.log),
+          catchError(this.handleError)
+        );
+
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage: string;

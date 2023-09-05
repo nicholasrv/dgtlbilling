@@ -45,8 +45,8 @@
               <div class="tab-content p-4 p-md-5" id="v-pills-tabContent" style="border-left: 1px solid #d4d0d0;">
                  <div class="tab-pane fade show active" id="profile-tab" role="tabpanel" aria-labelledby="profile" style="min-height: 510px;">
                     <h3 class="mb-4">Profile Settings</h3>
-                    <form #profileForm="ngForm">
-                       <input type="hidden" name="id">
+                    <form #profileForm="ngForm" (ngSubmit)="updateProfile(profileForm)">
+                       <input type="hidden" name="id" [ngModel]="state?.appData?.data?.user?.id" >
                        <div class="row">
                           <div class="col-md-6">
                              <div class="form-group">
