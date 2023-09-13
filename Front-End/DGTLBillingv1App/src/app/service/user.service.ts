@@ -36,7 +36,7 @@ export class UserService {
   profile$ = () =>
     <Observable<CustomHttpResponse<Profile>>>
       this.http
-        .get<CustomHttpResponse<Profile>>(`${this.server}/user/profile`, { headers: new HttpHeaders().set('Authorization', 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJOSUNIT0xBU1JWX0xUREEiLCJhdWQiOiJESUdJVEFMX0JJTExJTkdfU0VSVklDRSIsImlhdCI6MTY5Mzc3MDIxMCwic3ViIjoibmljaG9sYXNydkBnbWFpbC5jb20iLCJhdXRob3JpdGllcyI6WyJSRUFEOlVTRVIiLCJSRUFEOkNVU1RPTUVSIl0sImV4cCI6MTY5Mzc3MjAxMH0.6jrLuK9GsFb8jxy-o-vnhnEJaBXObH1Rl-s5oNj1BWjgqH_wIxASOBpTNRoiL8GWe7GWLaE36rxTdlj0JglNoA')})
+        .get<CustomHttpResponse<Profile>>(`${this.server}/user/profile`)
         .pipe(
           tap(console.log),
           catchError(this.handleError)
@@ -45,7 +45,7 @@ export class UserService {
   update$ = (user: User) =>
     <Observable<CustomHttpResponse<Profile>>>
       this.http
-        .patch<CustomHttpResponse<Profile>>(`${this.server}/user/update`, { headers: new HttpHeaders().set('Authorization', 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJOSUNIT0xBU1JWX0xUREEiLCJhdWQiOiJESUdJVEFMX0JJTExJTkdfU0VSVklDRSIsImlhdCI6MTY5Mzc3MDIxMCwic3ViIjoibmljaG9sYXNydkBnbWFpbC5jb20iLCJhdXRob3JpdGllcyI6WyJSRUFEOlVTRVIiLCJSRUFEOkNVU1RPTUVSIl0sImV4cCI6MTY5Mzc3MjAxMH0.6jrLuK9GsFb8jxy-o-vnhnEJaBXObH1Rl-s5oNj1BWjgqH_wIxASOBpTNRoiL8GWe7GWLaE36rxTdlj0JglNoA')})
+        .patch<CustomHttpResponse<Profile>>(`${this.server}/user/update`, user)
         .pipe(
           tap(console.log),
           catchError(this.handleError)
